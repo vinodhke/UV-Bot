@@ -1,33 +1,53 @@
-import RPi.GPIO as gpio
+import RPi.GPIO as GPIO
 import time
 
-def distance(measure='cm'):
-    gpio.setmode(gpio.BOARD)
-    gpio.setup(12, gpio.OUT)
-    gpio.setup(16, gpio.IN)
-  
-    time.sleep(0.3)
-    gpio.ouput(12, True)
+# Set up GPIO pins
+GPIO.setmode(GPIO.BCM)
+GPIO_TRIGGER = 23
+GPIO_ECHO = 24
+GPIO_LED = 25
+GPIO.setup(GPIO_TRIGGER, GPIO.OUT)
+GPIO.setup(GPIO_ECHO, GPIO.IN)
+GPIO.setup(GPIO_LED, GPIO.OUT)
+
+def distance():
+    # Set trigger to HIGH
+    GPIO.output(GPIO_TRIGGER, True)
+
+    # Set trigger after 0.01ms to LOW
     time.sleep(0.00001)
-    
-    gpio.output(12, False)
-    while gpio.input(16) == 0:
-        nosig = time.time()
-    
-    while gpio.input(16) == 1:
-        sig = time.time()
-    
-    tl = sig - nosig
-    
-    if measure == 'cm':
-        distance = tl / 0.000058
-    elif measure == 'in:
-        distance = tl / 0.000148
+    GPIO.output(GPIO_TRIGGER, False)
+
+    start_time = time.time()
+    stop_time = time.time()
+
+    # Save start time
+    while GPIO.input(GPIO_ECHO) == 0:
+        start_time = time.time()
+
+    # Save time of arrival
+    while GPIO.input(GPIO_ECHO) == 1:
+        stop_time = time.time()
+
+    # Calculate time difference
+    time_elapsed = stop_time - start_time
+
+    # Calculate distance in cm
+    distance_cm = (time_elapsed * 34300) / 2
+
+    return distance_cm
+
+# Main loop
+while True:
+    dist = distance()
+    print(f"Distance: {dist:.2f}cm")
+
+    if dist < 10: # Check if distance is less than 10cm (4 inches)
+        GPIO.output(GPIO_LED, True)
     else:
-        print('Improper choice of measurement: in or cm')
-        distance = None
-    
-    gpio.cleanup()
-    return distance
-  
-print(distance('cm'))
+        GPIO.output(GPIO_LED, False)
+
+    time.sleep(0.1)
+
+# Clean up GPIO pins
+GPIO.cleanup()
