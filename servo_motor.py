@@ -21,11 +21,10 @@ def main():
     try:
         while True:
             forward(pwm)
-            time.sleep(5)
+            # The motor will continue to run forward until the script is stopped
 
-            stop(pwm)
-            time.sleep(2)
     except KeyboardInterrupt:
+        stop(pwm)  # Stop the motor when the script is interrupted
         pwm.stop()
         GPIO.cleanup()
 
