@@ -1,16 +1,16 @@
 import RPi.GPIO as GPIO
 from time import sleep
 
-right_button_pin = 2
-left_button_pin = 3
-middle_button_pin = 4
+right_button_pin = 22
+left_button_pin = 26
+middle_button_pin = 27
 
-servo_pin1 = 17
-servo_pin2 = 27
+servo_pin1 = 23
+servo_pin2 = 24
 
-GPIO_TRIGGER = 16
-GPIO_ECHO = 13
-GPIO_LED = 26
+GPIO_TRIGGER = 6
+GPIO_ECHO = 5
+GPIO_LED = 25
 
 def setup_buttons():
     GPIO.setmode(GPIO.BCM)
@@ -88,7 +88,6 @@ def main():
 
     pwm1 = setup_gpio(servo_pin1)
     pwm2 = setup_gpio(servo_pin2)
-
     pwm1.start(0)
     pwm2.start(0)
 
@@ -104,7 +103,7 @@ def main():
         while True:
             dist = distance()
             print(f"Distance: {dist:.2f}cm")
-            
+
             if dist > 10:
                 stop(pwm1)
                 stop(pwm2)
@@ -114,44 +113,44 @@ def main():
             current_state = {
                 right_button_pin: GPIO.input(right_button_pin),
                 left_button_pin: GPIO.input(left_button_pin),
-  middle_button_pin: GPIO.input(middle_button_pin),
-        }
+                middle_button_pin: GPIO.input(middle_button_pin),
+            }
 
-        if button_state[right_button_pin] == GPIO.HIGH and current_state[right_button_pin] == GPIO.LOW:
-            move_backward(pwm1, pwm2)
-            sleep(2)
-            move_left(pwm1, pwm2)
-            sleep(3)
-            move_forward(pwm1, pwm2)
-            sleep(debounce_delay)
+            if button_state[right_button_pin] == GPIO.HIGH and current_state[right_button_pin] == GPIO.LOW:
+                move_backward(pwm1, pwm2)
+                sleep(2)
+                move_left(pwm1, pwm2)
+                sleep(3)
+                move_forward(pwm1, pwm2)
+                sleep(debounce_delay)
 
-        if button_state[left_button_pin] == GPIO.HIGH and current_state[left_button_pin] == GPIO.LOW:
-            move_backward(pwm1, pwm2)
-            sleep(2)
-            move_right(pwm1, pwm2)
-            sleep(3)
-            move_forward(pwm1, pwm2)
-            sleep(debounce_delay)
+            if button_state[left_button_pin] == GPIO.HIGH and current_state[left_button_pin] == GPIO.LOW:
+                move_backward(pwm1, pwm2)
+                sleep(2)
+                move_right(pwm1, pwm2)
+                sleep(3)
+                move_forward(pwm1, pwm2)
+                sleep(debounce_delay)
 
-        if button_state[middle_button_pin] == GPIO.HIGH and current_state[middle_button_pin] == GPIO.LOW:
-            move_backward(pwm1, pwm2)
-            sleep(2)
-            move_left(pwm1, pwm2)
-            sleep(3)
-            move_forward(pwm1, pwm2)
-            sleep(debounce_delay)
+            if button_state[middle_button_pin] == GPIO.HIGH and current_state[middle_button_pin] == GPIO.LOW:
+                move_backward(pwm1, pwm2)
+                sleep(2)
+                move_left(pwm1, pwm2)
+                sleep(3)
+                move_forward(pwm1, pwm2)
+                sleep(debounce_delay)
 
-        button_state = current_state
-        sleep(0.01)
+            button_state = current_state
+            sleep(0.01)
 
-except KeyboardInterrupt:
-    stop(pwm1)
-    stop(pwm2)
+    except KeyboardInterrupt:
+        stop(pwm1)
+        stop(pwm2)
 
-    pwm1.stop()
-    pwm2.stop()
+        pwm1.stop()
+        pwm2.stop()
 
-    GPIO.cleanup()
+        GPIO.cleanup()
 
-if name == "main":
-main()
+if __name__ == "__main__":
+    main()
